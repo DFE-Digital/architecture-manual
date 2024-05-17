@@ -36,7 +36,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(favicon(path.join(__dirname, 'public/assets/images', 'favicon.ico')))
 
 app.set('view engine', 'html')
-app.locals.serviceName = process.env.serviceName | 'Architecture manual' 
+app.locals.serviceName = process.env.serviceName || 'Architecture manual' 
 
 // Set up Nunjucks as the template engine
 const nunjuckEnv = nunjucks.configure(
