@@ -3,7 +3,7 @@ const base = new Airtable({ apiKey: process.env.airtableFeedbackKey }).base(proc
 
 exports.post_helpful = async function (req, res) {
   const { response } = req.body
-  const service = 'Design manual'
+  const service = 'Architecture manual'
   const pageURL = req.headers.referer || 'Unknown'
 
   base('Data').create([
@@ -27,7 +27,7 @@ exports.post_helpful = async function (req, res) {
 exports.post_feedback = async function (req, res) {
   const { response } = req.body
 
-  const service = 'Design manual' // Example service name
+  const service = 'Architecture manual' // Example service name
   const pageURL = req.headers.referer || 'Unknown' // Attempt to capture the referrer URL
 
   base('Feedback').create([{
