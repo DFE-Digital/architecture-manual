@@ -2,13 +2,11 @@ require('dotenv').config()
 
 const express = require('express')
 const nunjucks = require('nunjucks')
-const axios = require('axios')
 const dateFilter = require('nunjucks-date-filter')
 const markdown = require('nunjucks-markdown')
 const marked = require('marked')
 const GovukHTMLRenderer = require('govuk-markdown')
 const bodyParser = require('body-parser')
-const fs = require('fs')
 const path = require('path')
 const config = require('./app/config')
 const forceHttps = require('express-force-https')
@@ -57,13 +55,6 @@ marked.setOptions({
 })
 markdown.register(nunjuckEnv, marked.parse)
 
-nunjuckEnv.addFilter('formatNumber', function (number) {
-  return number.toLocaleString()
-})
-
-nunjuckEnv.addFilter('hyphen', function (str) {
-  return str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
-})
 
 app.use(forceHttps)
 
@@ -91,15 +82,6 @@ app.get('/robots.txt', (_, res) => {
   res.render('robots.txt')
 })
 
-app.get('/downloads/:filename', (req, res) => {
-  const filename = req.params.filename
-  const filePath = path.join(__dirname, '/app/assets/downloads/' + filename)
-  // Set appropriate headers
-  //  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-  res.setHeader('Content-Disposition', `attachment; filename=${filename}`)
-  // Send the file
-  res.sendFile(filePath)
-})
 
 app.get('/search', (req, res) => {
   console.log(req.query.searchterm)
@@ -160,239 +142,6 @@ function makeFormDataGlobal(req, res, next) {
 app.use(saveFormDataToSession)
 app.use(makeFormDataGlobal)
 
-app.get('/learn/how-many-users', function (req, res) {
-  res.redirect(301, '/tools/how-many-users')
-})
-
-app.get('/learn/how-many-users/:number', function (req, res) {
-  const number = req.params.number
-  res.redirect(301, '/tools/how-many-users/' + number)
-})
-
-app.get('/design-ops/design-maturity/september-2022', function (req, res) {
-  res.redirect('/inside-design/maturity/results/september-2022', 301)
-})
-
-app.get('/design-ops/maturity/results/september-2023', function (req, res) {
-  const data = require('./app/data/dm_2023.json')
-
-  res.render('design-ops/maturity/results/september-2023', { data })
-})
-
-app.get(
-  '/design-system/dfe-frontend',
-  function (req, res, next) {
-    const packageName = 'dfe-frontend'
-
-    axios
-      .get(`https://registry.npmjs.org/${packageName}`)
-      .then((response) => {
-        const version = response.data['dist-tags'].latest
-        const lastUpdatedv = new Date(
-          response.data.time.modified
-        ).toISOString()
-
-        res.render('design-system/dfe-frontend/index.html', {
-          version,
-          lastUpdatedv
-        })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }
-)
-
-app.get(
-  '/design-system/installation',
-  function (req, res, next) {
-    const packageName = 'dfe-frontend'
-
-    axios
-      .get(`https://registry.npmjs.org/${packageName}`)
-      .then((response) => {
-        const version = response.data['dist-tags'].latest
-        const lastUpdatedv = new Date(
-          response.data.time.modified
-        ).toISOString()
-
-        res.render('design-system/installation/index.html', {
-          version,
-          lastUpdatedv
-        })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }
-)
-
-app.get(
-  '/design-system/dfe-frontend/whats-new',
-  function (req, res, next) {
-    const packageName = 'dfe-frontend'
-
-    axios
-      .get(`https://registry.npmjs.org/${packageName}`)
-      .then((response) => {
-        const version = response.data['dist-tags'].latest
-
-        const sortedFilteredVersions = Object.entries(response.data.time)
-          .filter(([version, _]) => version.includes('.') && version.startsWith('2'))
-          .sort(([versionA, _a], [versionB, _b]) => versionB.localeCompare(versionA))
-
-        const lastUpdatedv = new Date(
-          response.data.time.modified
-        ).toISOString()
-
-        res.render('design-system/dfe-frontend/whats-new.html', {
-          version,
-          lastUpdatedv,
-          sortedFilteredVersions
-        })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }
-)
-
-app.get('/tools/how-many-users/:number', (req, res) => {
-  const number = parseInt(req.params.number | 0)
-
-  if (number) {
-    fs.readFile('./app/data/stats.json', 'utf8', (err, data) => {
-      if (err) {
-        console.error('Error reading data.json:', err)
-        res.sendStatus(500)
-        return
-      }
-
-      try {
-        const jsonData = JSON.parse(data)
-        const calculatedData = calculateValues(jsonData, number)
-
-        res.render('tools/how-many-users/index.html', {
-          number,
-          calculatedData
-        })
-      } catch (err) {
-        console.error('Error parsing data.json:', err)
-        res.sendStatus(500)
-      }
-    })
-  } else {
-    res.redirect('/tools/how-many-users')
-  }
-})
-
-app.post('/tools/how-many-users', (req, res) => {
-  const number = req.body.numberOfUsers
-
-  if (number) {
-    res.redirect('/tools/how-many-users/' + number)
-  } else {
-    res.redirect('/tools/how-many-users')
-  }
-})
-
-app.get('/tools/jd-generator', (req, res) => {
-  res.render('tools/jd-generator/index.html')
-})
-
-app.get('/tools/proposition-checker/question1', (req, res) => {
-  console.log(req.session.data)
-
-  res.render('tools/proposition-checker/question1')
-})
-
-app.post('/tools/proposition-checker/question1', (req, res) => {
-  console.log(req.session.data)
-
-  if (req.body.question1 === 'No') {
-    res.redirect('/tools/proposition-checker/nongovuk')
-  } else {
-    res.redirect('/tools/proposition-checker/question2')
-  }
-})
-
-app.post('/tools/proposition-checker/question2', (req, res) => {
-  if (req.body.question2 === 'No') {
-    res.redirect('/tools/proposition-checker/nongovuk')
-  } else {
-    res.redirect('/tools/proposition-checker/question3')
-  }
-})
-
-app.post('/tools/proposition-checker/question3', (req, res) => {
-  if (req.body.question3 === 'Yes') {
-    res.redirect('/tools/proposition-checker/mainstream')
-  } else {
-    res.redirect('/tools/proposition-checker/question4')
-  }
-})
-
-app.post('/tools/proposition-checker/question4', (req, res) => {
-  if (req.body.question4 === 'Yes') {
-    res.redirect('/tools/proposition-checker/question4a')
-  } else {
-    res.redirect('/tools/proposition-checker/question6')
-  }
-})
-
-app.post('/tools/proposition-checker/question4a', (req, res) => {
-  if (req.session.data.question4 === 'Yes') {
-    res.redirect('/tools/proposition-checker/question5')
-  } else {
-    res.redirect('/tools/proposition-checker/question6')
-  }
-})
-
-app.post('/tools/proposition-checker/question5', (req, res) => {
-  console.log(req.session.data)
-  res.redirect('/tools/proposition-checker/question6')
-})
-
-app.post('/tools/proposition-checker/question6', (req, res) => {
-  if (req.session.data.question6 === 'Yes') {
-    res.redirect('/tools/proposition-checker/nongovuk')
-  } else {
-    res.redirect('/tools/proposition-checker/uncertain')
-  }
-})
-
-app.get('/tools/proposition-checker', (req, res) => {
-  req.session.data = {}
-
-  console.log('indexpage')
-
-  res.render('tools/proposition-checker/index')
-})
-
-app.get('/tools/proposition-checker/result', (req, res) => {
-  console.log(req.session.data)
-
-  res.render('tools/proposition-checker/result')
-})
-
-function calculateValues(data, number) {
-  const calculatedData = []
-
-  data.forEach((item) => {
-    const numberresult = Math.ceil((item.percent / 100) * number) // Round up to the nearest whole number so we can account for sub 1 %'s on low user numbers.
-    calculatedData.push({
-      measure: item.measure,
-      number: numberresult,
-      source: item.source,
-      summary: item.summary,
-      type: item.type
-    })
-  })
-
-  calculatedData.sort((a, b) => b.number - a.number)
-
-  return calculatedData
-}
 
 app.get(/\.html?$/i, function (req, res) {
   let path = req.path
