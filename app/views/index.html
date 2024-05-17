@@ -1,0 +1,61 @@
+{% extends "layouts/content-full-width.html" %}
+{% set canonical = "TODO"%}
+{% set selectedNav = "Home" %}
+{% set pageName = "Architecture" %}
+{% set pageDescription = "architecture principles, standards and guidance that we expect teams working within the
+Department for Education (DfE) to follow when designing services." %}
+{% set backlog_issue_id = "TODO" %}
+
+{% block hero %}
+<section class="dfe-page-hero">
+   <div class="govuk-width-container">
+      <div class="govuk-grid-row">
+         <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl govuk-!-font-size-80">{{pageName}}</h1>
+            <p class="govuk-body-l">{{pageDescription}}</p>
+         </div>
+      </div>
+   </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+<div class="govuk-width-container">
+   <div class="govuk-grid-row">
+      <div class="govuk-grid-column-full">
+         <h2 class="govuk-heading-l">Principles and standards</h2>
+
+         {{ card({
+         cards: [
+         {
+         "imageCard": false,
+         "imagePath": "",
+         "altText": "",
+         "headingLevel": "3",
+         "linkCard": true,
+         "link": "/principles",
+         "openInNewTab": false,
+         "heading": "Principles",
+         "description": "The principles...",
+         "meta": ""
+         },{
+         "imageCard": false,
+         "imagePath": "",
+         "altText": "",
+         "headingLevel": "3",
+         "linkCard": true,
+         "link": "/standards",
+         "openInNewTab": false,
+         "heading": "Standards",
+         "description": "The standards...",
+         "meta": ""
+         }
+         ]
+         }) }}
+      </div>
+   </div>
+</div>
+
+
+{% endblock %}

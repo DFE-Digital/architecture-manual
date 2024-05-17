@@ -1,0 +1,29 @@
+{% set principles_sub = [
+{
+title: "Principles",
+url: "/principles"
+},{
+title: "Accessibility",
+url: "/principles/accessibility"
+},{
+title: "Enterprise architecture",
+url: "/principles/enterprise-architecture"
+}
+] %}
+
+
+<nav class="dfe-vertical-nav">
+
+  {%- if selectedNav === "Principles" %}
+  <ul class="dfe-vertical-nav__section">
+    {% for item in principles_sub %}
+    <li
+      class="dfe-vertical-nav__section-item {% if item.title === pageName  or setSelectedSideNav === item.title %}dfe-vertical-nav__section-item--current{% endif %}">
+      <a class="dfe-vertical-nav__link" href="{{ item.url }}">{{ item.title }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {%- endif %}
+
+
+</nav>
