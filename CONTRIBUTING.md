@@ -1,6 +1,6 @@
-# Contributing to the accessibility manual
+# Contributing to the architecture manual
 
-Thank you for your interest in contributing to the accessibility manual project. This document outlines the processes and guidelines that help ensure successful contributions.
+Thank you for your interest in contributing to the architecture manual project. This document outlines the processes and guidelines that help ensure successful contributions.
 
 ## Code of Conduct
 
